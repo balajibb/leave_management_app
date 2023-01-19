@@ -1,0 +1,123 @@
+{% extends 'vacation_management_app/base.html' %}
+{% block content %}
+<style>
+  .parent {
+  margin: 1rem;
+  padding: 2rem 2rem;
+  text-align: center;
+}
+.child {
+  display: inline-block;
+  padding: 1rem 1rem;
+  vertical-align: middle;
+}
+</style>
+<div class="container mt-5 pb-2">
+    {% if not users %}
+    <div class="justify-content-center d-flex flex-column">
+        <h1 class="text-center">You don't have any requests</h1>
+        <a class="fs-5 text-center" href="{% url 'home' %}" style="text-decoration: none;">Home</a>
+    </div>
+    {% else %}
+    <div class="d-flex justify-content-cetner align-items-center flex-column mb-5">
+        <h1 class="text-center">User Lists </h1>
+
+        <!-- <div class='parent'>
+          <div class='child'><div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Filter Status
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}?status={{ statuses.Waiting }}">Waiting</a></li>
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}?status={{ statuses.Approved }}">Approved</a></li>
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}?status={{ statuses.Rejected }}">Rejected</a></li>
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}?status={{ statuses.Cancelled }}">Cancelled</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}">Clear filter</a></li>
+            </ul>
+        </div></div>
+          <div class='child'><div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Filter Leave Type
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}?leave_type={{ leaveTypes.Casual }}">Casual</a></li>
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}?leave_type={{ leaveTypes.Medical }}">Medical</a></li>
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}?leave_type={{ leaveTypes.Optional }}">Optional</a></li>
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}?leave_type={{ leaveTypes.Regional }}">Regional</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'requests_list' %}">Clear filter</a></li>
+            </ul>
+        </div></div>
+        </div>  -->
+    </div>
+    <!-- {% if not users %}<h2 class="fw-normal text-center">There are no requests of <b>{{ filtered_status }}</b> status</h2>{% endif %} -->
+   {% endif %} 
+    {% if users %} 
+    {% for index, user in users %}
+    <div class="me-auto">{{ user.username }}</div>
+    <!-- <div class="mb-3">
+        <div class="list-group list-group-light">
+            <h2 class="mb-2">Request {{ index }}{% if user.username %}, <span class="fw-normal">{{ user.username|truncatechars:40 }}</span>{% endif %}</h2>
+            <div class="list-group-item list-group-item-action px-3 border-0 rounded-3 mb-2 list-group-item-secondary d-flex justify-content-between align-items-start" data-bs-toggle="modal" data-bs-target="#modal{{ user.id }}" style="cursor: pointer;">
+                <div class="me-auto">{{ user.date_joined|date:'j.m.Y' }}</div>
+                <div class="mx-auto" style="width: 200px;"><h6>{{ user.is_staff }}</h6></div>
+                <span class="badge text-bg-{% if user.is_active == 'Active' %}primary{% elif user.is_active == 'inactive' %}success{% else %}danger{% endif %}">{{ user.is_active }}</span>
+              
+            </div>
+        </div>
+    </div> -->
+    {% endfor %}
+    {% endif %}
+    <!--{% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="pb-3 pt-2">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          {% endif %}
+          {% for p in page_obj.paginator.page_range %}
+          {% if page_obj.number == p %}
+          <li class="page-item"><a class="page-link active" href="?page={{ p }}">{{ p }}</a></li>
+          {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+          <li class="page-item"><a class="page-link" href="?page={{ p }}">{{ p }}</a></li>
+          {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+{% for index, request in requests %}
+<div class="modal fade" id="modal{{ request.id }}" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="ModalLabel">Request {{ index }}</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body border">
+        <b>From:</b> {{ request.start_date|date:'F d, Y' }}<br>
+        <b>Till:</b> {{ request.finish_date|date:'F d, Y' }}<br>
+        <b>Leave Type:</b> {{ request.leave_type }}<br>
+        <b>Reason:</b> <br>{% if request.reason %}{{ request.reason }}<br>{% endif %}
+        <span class="badge text-bg-{% if request.status == statuses.Waiting %}primary{% elif request.status == statuses.Approved %}success{% else %}danger{% endif %}">{{ request.get_status_display }}</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %} -->
+{% endblock content %}
